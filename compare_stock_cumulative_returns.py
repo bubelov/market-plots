@@ -7,15 +7,17 @@ import matplotlib.pyplot as plt
 import alpha_vantage
 
 def show_price_history(symbol_1, symbol_2, interval="MONTHLY"):
-    symbol_1_x_values, symbol_1_y_values = get_price_history_values(symbol_1, interval)
-    symbol_2_x_values, symbol_2_y_values = get_price_history_values(symbol_2, interval)
+    values_1 = get_price_history_values(symbol_1, interval)
+    values_2 = get_price_history_values(symbol_2, interval)
 
-    if len(symbol_2_x_values) > len(symbol_1_x_values):
-        symbol_2_x_values = symbol_2_x_values[:-(len(symbol_2_x_values) - len(symbol_1_x_values))]
-        symbol_2_y_values = symbol_2_y_values[:-(len(symbol_2_y_values) - len(symbol_1_y_values))]
+    values_1 = { k:v for (k,v) in values_1.items() if k in values_2.keys() }
+    values_2 = { k:v for (k,v) in values_2.items() if k in values_1.keys() }
 
-    plt.plot(symbol_1_x_values, adjust_relative(symbol_1_y_values), label=symbol_1)
-    plt.plot(symbol_2_x_values, adjust_relative(symbol_2_y_values), label=symbol_2)
+    values_1 = adjust_values(values_1)
+    values_2 = adjust_values(values_2)
+
+    plt.plot(values_1.keys(), values_1.values(), label=symbol_1)
+    plt.plot(values_2.keys(), values_2.values(), label=symbol_2)
 
     plt.xlabel('Date')
     plt.ylabel('Price (USD)')
@@ -25,22 +27,33 @@ def show_price_history(symbol_1, symbol_2, interval="MONTHLY"):
     plt.show()
 
 def get_price_history_values(symbol, interval):
-    data = alpha_vantage.get_stock_price_history(symbol, interval + "_ADJUSTED")
-    meta_key, dates_key = data.keys()
-    dates_data = data[dates_key]
+    data = None
+    dates_data = None
 
-    x_values = []
-    y_values = []
+    try:
+        data = alpha_vantage.get_stock_price_history(symbol, interval + "_ADJUSTED")
+        meta_key, dates_key = data.keys()
+        dates_data = data[dates_key]
+    except:
+        print("Cannot parse response: %s" % data)
 
-    for k, v in dates_data.items():
-        x_values.append(parser.parse(k))
-        y_values.append(float(v['5. adjusted close']))
+    result = {}
 
-    return (x_values, y_values)
+    for k, v in sorted(dates_data.items()):
+        result[parser.parse(k)] = float(v['5. adjusted close'])
 
-def adjust_relative(values, pivot=100.0):
-    factor = values[-1] / pivot
-    return [v / factor for v in values]
+    return result
+
+def adjust_values(map, pivot=100.0):
+    scale_factor = None
+
+    for k, v in sorted(map.items()):
+        if scale_factor == None:
+            scale_factor = v / pivot
+
+        map[k] = v / scale_factor
+
+    return map
 
 if len(sys.argv) > 3:
     show_price_history(sys.argv[1], sys.argv[2], sys.argv[3])
