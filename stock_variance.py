@@ -1,5 +1,4 @@
 import sys
-import math
 import numpy as np
 import matplotlib
 matplotlib.use('TkAgg')
@@ -9,10 +8,8 @@ import alpha_vantage
 
 def show_stock_variance(symbol, interval="MONTHLY"):
     returns = alpha_vantage.get_stock_returns_history(symbol, interval)
-    mean_returns = np.mean(returns)
-    squared_deviations = [(i - mean_returns)**2 for i in returns]
-    variance = np.sum(squared_deviations) / len(returns)
-    standard_deviation = math.sqrt(variance)
+    variance = np.var(returns)
+    standard_deviation = np.sqrt(variance)
 
     plt.hist(returns, normed=True, bins=25)
 
