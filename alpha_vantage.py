@@ -49,14 +49,39 @@ def get_stock_price_history(symbol, interval, adjusted=False):
 
     return (dates, prices)
 
-def get_crypto_price_history(base_currency, quote_currency, interval):
+def get_crypto_returns_history(currency, interval):
+    dates, prices = get_crypto_price_history(currency, interval)
+
+    returns = []
+    prev_price = None
+
+    for price in prices:
+        if prev_price != None:
+            returns.append(((price / prev_price) - 1.0) * 100.0)
+
+        prev_price = price
+
+    return returns
+
+def get_crypto_price_history(currency, interval):
     url = url_for_function('DIGITAL_CURRENCY_%s' % interval)
     url += '&apikey=%s' % API_KEY
-    url += '&symbol=%s' % base_currency
-    url += '&market=%s' % quote_currency
+    url += '&symbol=%s' % currency
+    url += '&market=%s' % 'USD'
 
     response = url_request.urlopen(url, timeout=REQUEST_TIMEOUT_SECONDS)
-    return json.load(response)
+    data = json.load(response)
+    meta_key, dates_key = data.keys()
+    dates_data = data[dates_key]
+
+    dates = []
+    prices = []
+
+    for k, v in dates_data.items():
+        dates.append(parser.parse(k))
+        prices.append(float(v['4a. close (USD)']))
+
+    return (dates, prices)
 
 def url_for_function(function):
     return 'https://www.alphavantage.co/query?function=%s' % function

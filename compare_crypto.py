@@ -5,9 +5,9 @@ import matplotlib.pyplot as plt
 
 import alpha_vantage
 
-def compare(symbol_1, symbol_2, interval='MONTHLY'):
-    dates_1, prices_1 = alpha_vantage.get_stock_price_history(symbol_1, interval, adjusted=True)
-    dates_2, prices_2 = alpha_vantage.get_stock_price_history(symbol_2, interval, adjusted=True)
+def compare(currency_1, currency_2, interval='MONTHLY'):
+    dates_1, prices_1 = alpha_vantage.get_crypto_price_history(currency_1, interval)
+    dates_2, prices_2 = alpha_vantage.get_crypto_price_history(currency_2, interval)
 
     data_1 = dict(zip(dates_1, prices_1))
     data_2 = dict(zip(dates_2, prices_2))
@@ -18,13 +18,13 @@ def compare(symbol_1, symbol_2, interval='MONTHLY'):
     data_1 = adjust_values(data_1)
     data_2 = adjust_values(data_2)
 
-    plt.plot(data_1.keys(), data_1.values(), label=symbol_1)
-    plt.plot(data_2.keys(), data_2.values(), label=symbol_2)
+    plt.plot(data_1.keys(), data_1.values(), label=currency_1)
+    plt.plot(data_2.keys(), data_2.values(), label=currency_2)
 
     plt.xlabel('Date')
     plt.ylabel('Price (USD)')
 
-    plt.title('%s and %s price history (adjusted)' % (symbol_1, symbol_2))
+    plt.title('%s and %s price history (adjusted)' % (currency_1, currency_2))
     plt.legend()
     plt.show()
 
