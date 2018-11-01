@@ -10,6 +10,7 @@ def show_variance(symbol, interval='MONTHLY'):
     returns = alpha_vantage.get_stock_returns_history(symbol, interval)
     variance = np.var(returns)
     standard_deviation = np.sqrt(variance)
+    mean_returns = np.mean(returns)
 
     plt.hist(returns, normed=True, bins=25)
 
@@ -17,8 +18,8 @@ def show_variance(symbol, interval='MONTHLY'):
     plt.ylabel('Frequency (%)')
 
     title_line_1 = '%s returns distribution (%s)' % (symbol, interval)
-    title_line_2 = 'Variance = %f' % variance
-    title_line_3 = 'Standard deviation = %f' % standard_deviation
+    title_line_2 = 'Variance = %f, Standard deviation = %f' % (variance, standard_deviation)
+    title_line_3 = 'Mean returns (%s) = %f' % (interval, mean_returns)
     plt.title('%s\n%s\n%s' % (title_line_1, title_line_2, title_line_3))
 
     plt.show()

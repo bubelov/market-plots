@@ -39,7 +39,7 @@ def get_stock_price_history(symbol, interval, adjusted=False):
     dates = []
     prices = []
 
-    for k, v in dates_data.items():
+    for k, v in sorted(dates_data.items()):
         dates.append(parser.parse(k))
 
         if adjusted == True:
@@ -77,7 +77,7 @@ def get_crypto_price_history(currency, interval):
     dates = []
     prices = []
 
-    for k, v in dates_data.items():
+    for k, v in sorted(dates_data.items()):
         dates.append(parser.parse(k))
         prices.append(float(v['4a. close (USD)']))
 
