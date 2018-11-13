@@ -8,14 +8,14 @@ API_KEY = 'WVK0W8WGQRYMAYXS'
 REQUEST_TIMEOUT_SECONDS = 20
 
 def get_stock_returns_history(symbol, interval):
-    dates, prices = get_stock_price_history(symbol, interval, adjusted=True)
+    price_history = get_stock_price_history(symbol, interval, adjusted=True)
 
     returns = []
     prev_price = None
 
-    for price in prices:
+    for price in price_history.values():
         if prev_price != None:
-            returns.append(((price / prev_price) - 1.0) * 100.0)
+            returns.append((price - prev_price) / prev_price)
 
         prev_price = price
 
@@ -36,18 +36,17 @@ def get_stock_price_history(symbol, interval, adjusted=False):
     meta_key, dates_key = data.keys()
     dates_data = data[dates_key]
 
-    dates = []
-    prices = []
+    return {
+        parser.parse(k): float(v[get_stock_price_field_name(adjusted)])
+        for k, v
+        in sorted(dates_data.items())
+    }
 
-    for k, v in sorted(dates_data.items()):
-        dates.append(parser.parse(k))
-
-        if adjusted == True:
-            prices.append(float(v['5. adjusted close']))
-        else:
-            prices.append(float(v['4. close']))
-
-    return (dates, prices)
+def get_stock_price_field_name(adjusted):
+    if adjusted == True:
+        return '5. adjusted close'
+    else:
+        return '4. close'
 
 def get_crypto_returns_history(currency, interval):
     dates, prices = get_crypto_price_history(currency, interval)

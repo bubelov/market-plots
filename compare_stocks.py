@@ -2,29 +2,42 @@ import sys
 import matplotlib
 matplotlib.use('TkAgg')
 import matplotlib.pyplot as plt
+import numpy as np
 
 import alpha_vantage
 
-def compare(symbol_1, symbol_2, interval='MONTHLY'):
-    dates_1, prices_1 = alpha_vantage.get_stock_price_history(symbol_1, interval, adjusted=True)
-    dates_2, prices_2 = alpha_vantage.get_stock_price_history(symbol_2, interval, adjusted=True)
+def compare(stock_symbol, benchmark_symbol, interval='MONTHLY'):
+    stock_dates, stock_prices = alpha_vantage.get_stock_price_history(stock_symbol, interval, adjusted=True)
+    benchmark_dates, benchmark_prices = alpha_vantage.get_crypto_price_history(benchmark_symbol, interval)
 
-    data_1 = dict(zip(dates_1, prices_1))
-    data_2 = dict(zip(dates_2, prices_2))
+    stock_data = dict(zip(stock_dates, stock_prices))
+    benchmark_data = dict(zip(benchmark_dates, benchmark_prices))
 
-    data_1 = { k:v for (k,v) in data_1.items() if k in data_2.keys() }
-    data_2 = { k:v for (k,v) in data_2.items() if k in data_1.keys() }
+    stock_data = { k:v for (k,v) in stock_data.items() if k in benchmark_data.keys() }
+    benchmark_data = { k:v for (k,v) in benchmark_data.items() if k in stock_data.keys() }
 
-    data_1 = adjust_values(data_1)
-    data_2 = adjust_values(data_2)
+    stock_data = adjust_values(stock_data)
+    benchmark_data = adjust_values(benchmark_data)
 
-    plt.plot(data_1.keys(), data_1.values(), label=symbol_1)
-    plt.plot(data_2.keys(), data_2.values(), label=symbol_2)
+    covariance = np.cov(list(stock_data.values()), list(benchmark_data.values()), ddof=0)[0][1]
+    benchmark_variance = np.var(list(benchmark_data.values()))
+    beta = covariance / benchmark_variance
+
+    correlation = np.corrcoef(list(stock_data.values()), list(benchmark_data.values()))
+    print('Correllation: %s' % correlation)
+
+    plt.plot(stock_data.keys(), stock_data.values(), label=stock_symbol)
+    plt.plot(benchmark_data.keys(), benchmark_data.values(), label=benchmark_symbol)
 
     plt.xlabel('Date')
     plt.ylabel('Price (USD)')
 
-    plt.title('%s and %s price history (adjusted)' % (symbol_1, symbol_2))
+    title_line_1 = '%s performance against %s (adjusted)' % (stock_symbol, benchmark_symbol)
+    title_line_2 = 'Covariance = %f' % covariance
+    title_line_3 = 'Benchmark variance = %f' % benchmark_variance
+    title_line_4 = 'Beta = %f' % beta
+
+    plt.title('%s\n%s\n%s\n%s' % (title_line_1, title_line_2, title_line_3, title_line_4))
     plt.legend()
     plt.show()
 
