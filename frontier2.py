@@ -8,6 +8,14 @@ import alpha_vantage
 
 def show_frontier(symbol1, symbol2, interval='MONTHLY'):
     returns1 = alpha_vantage.get_stock_returns_history(symbol1, interval)
+    returns2 = alpha_vantage.get_stock_returns_history(symbol2, interval)
+
+    if len(returns1) > len(returns2):
+        returns1 = returns1[-len(returns2):]
+
+    if len(returns2) > len(returns1):
+        returns2 = returns2[-len(returns1):]
+
     mean_returns1 = np.mean(returns1)
     variance1 = np.var(returns1)
     standard_deviation1 = np.sqrt(variance1)
@@ -16,7 +24,6 @@ def show_frontier(symbol1, symbol2, interval='MONTHLY'):
     print('Varince (%s) = %f' % (symbol1, variance1))
     print('Standard Deviation (%s) = %f' % (symbol1, standard_deviation1))
 
-    returns2 = alpha_vantage.get_stock_returns_history(symbol2, interval)
     mean_returns2 = np.mean(returns2)
     variance2 = np.var(returns2)
     standard_deviation2 = np.sqrt(variance2)
@@ -25,8 +32,8 @@ def show_frontier(symbol1, symbol2, interval='MONTHLY'):
     print('Varince (%s) = %f' % (symbol2, variance2))
     print('Standard Deviation (%s) = %f' % (symbol2, standard_deviation2))
 
-    covariance = np.cov(returns1, returns2)[0][1]
-    print('Covariance = %f' % covariance)
+    correlation = np.corrcoef(returns1, returns2)[0][1]
+    print('Corellation = %f' % correlation)
 
     weights = []
 
@@ -42,7 +49,7 @@ def show_frontier(symbol1, symbol2, interval='MONTHLY'):
     for w1, w2 in weights:
         returns.append(w1 * mean_returns1 + w2 * mean_returns2)
 
-        variance = w1**2 * standard_deviation1**2 + w2**2 * standard_deviation2**2 + 2 * w1 * w2 * covariance
+        variance = w1**2 * standard_deviation1**2 + w2**2 * standard_deviation2**2 + 2 * w1 * w2 * standard_deviation1 * standard_deviation2 * correlation
         standard_deviation = np.sqrt(variance)
         standard_deviations.append(standard_deviation)
 
@@ -67,7 +74,7 @@ def show_frontier(symbol1, symbol2, interval='MONTHLY'):
     plt.title('Efficient Frontier (%s and %s)' % (symbol1, symbol2))
 
     plt.xlabel('Risk')
-    plt.ylabel('Returns')
+    plt.ylabel('Return')
 
     plt.show()
 
