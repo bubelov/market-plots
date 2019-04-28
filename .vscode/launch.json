@@ -6,13 +6,29 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "History (^GSPC)",
+            "name": "History (SPX)",
             "type": "python",
             "request": "launch",
             "program": "history.py",
             "console": "integratedTerminal",
+            "args": ["SPX"]
+        },
+        {
+            "name": "Variance (^GSPC)",
+            "type": "python",
+            "request": "launch",
+            "program": "variance.py",
+            "console": "integratedTerminal",
             "args": ["^GSPC"]
         },
+        {
+            "name": "Compare (TSLA vs SPX)",
+            "type": "python",
+            "request": "launch",
+            "program": "compare.py",
+            "console": "integratedTerminal",
+            "args": ["TSLA", "SPX"]
+        },        
         {
             "name": "Yield Curve",
             "type": "python",

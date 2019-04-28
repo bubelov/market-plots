@@ -1,8 +1,9 @@
-import matplotlib
 import sys
-matplotlib.use('TkAgg')
+import pathlib
 import matplotlib.pyplot as plt
+
 import alpha_vantage
+import plot_style
 
 
 def show_history(symbol, interval='MONTHLY'):
@@ -12,12 +13,14 @@ def show_history(symbol, interval='MONTHLY'):
         adjusted=False
     )
 
-    plt.plot(list(data.keys()), list(data.values()))
+    plot_style.line()
 
-    plt.title('%s price history' % symbol)
-    plt.xlabel('Date')
-    plt.ylabel('Price')
-    plt.show()
+    plt.title(f'{symbol} price history', pad=24)
+    plt.plot(list(data.keys()), list(data.values()), antialiased=True, linewidth=3)
+
+    pathlib.Path('img/history').mkdir(parents=True, exist_ok=True)
+    plt.savefig(f'img/history/{symbol}.png')
+    plt.close()
 
 
 show_history(sys.argv[1])
