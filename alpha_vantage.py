@@ -1,11 +1,19 @@
+import os
 import urllib.request as url_request
 import json
 from dateutil import parser
+from os.path import join, dirname
+from dotenv import load_dotenv
+
 import ssl
 ssl._create_default_https_context = ssl._create_unverified_context
 
-API_KEY = 'WVK0W8WGQRYMAYXS'
+dotenv_path = join(dirname(__file__), '.env')
+load_dotenv(dotenv_path)
+
+API_KEY = os.getenv('ALPHA_VANTAGE_KEY')
 REQUEST_TIMEOUT_SECONDS = 20
+
 
 def get_stock_returns_history(symbol, interval):
     price_history = get_stock_price_history(symbol, interval, adjusted=True)
@@ -20,6 +28,7 @@ def get_stock_returns_history(symbol, interval):
         prev_price = price
 
     return returns
+
 
 def get_stock_price_history(symbol, interval, adjusted=False):
     url = url_for_function('TIME_SERIES_%s' % interval)
@@ -42,11 +51,13 @@ def get_stock_price_history(symbol, interval, adjusted=False):
         in sorted(dates_data.items())
     }
 
+
 def get_stock_price_field_name(adjusted):
     if adjusted == True:
         return '5. adjusted close'
     else:
         return '4. close'
+
 
 def get_crypto_returns_history(currency, interval):
     dates, prices = get_crypto_price_history(currency, interval)
@@ -61,6 +72,7 @@ def get_crypto_returns_history(currency, interval):
         prev_price = price
 
     return returns
+
 
 def get_crypto_price_history(currency, interval):
     url = url_for_function('DIGITAL_CURRENCY_%s' % interval)
@@ -81,6 +93,7 @@ def get_crypto_price_history(currency, interval):
         prices.append(float(v['4a. close (USD)']))
 
     return (dates, prices)
+
 
 def url_for_function(function):
     return 'https://www.alphavantage.co/query?function=%s' % function

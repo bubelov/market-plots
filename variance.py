@@ -20,7 +20,7 @@ def show_variance(symbol, interval='MONTHLY'):
     plt.gca().yaxis.set_major_formatter(
         matplotlib.ticker.StrMethodFormatter('{x:.0f}%'))
 
-    plt.hist(returns, normed=True, bins=25, edgecolor='white', linewidth=1)
+    plt.hist(returns, bins=25, edgecolor='white', linewidth=1)
 
     title_line_1 = f'{symbol} {interval} return distribution'
     title_line_2 = 'Standard deviation = %.2f%% Mean return = %.2f%%' % (

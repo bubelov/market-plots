@@ -1,10 +1,9 @@
-import sys
-import numpy as np
-import matplotlib
-matplotlib.use('TkAgg')
-import matplotlib.pyplot as plt
-
 import alpha_vantage
+import matplotlib.pyplot as plt
+import sys
+import pathlib
+import numpy as np
+
 
 def show_frontier(symbols, interval='MONTHLY'):
     print('Symbols: %s' % symbols)
@@ -31,7 +30,8 @@ def show_frontier(symbols, interval='MONTHLY'):
         returns_history[symbol] = returns_history[symbol][-min_length:]
 
     for symbol in symbols:
-        print('History for symbol %s has %i records' % (symbol, len(returns_history[symbol])))
+        print('History for symbol %s has %i records' %
+              (symbol, len(returns_history[symbol])))
 
     mean_returns = dict()
     variances = dict()
@@ -39,7 +39,8 @@ def show_frontier(symbols, interval='MONTHLY'):
 
     for symbol in symbols:
         history = returns_history[symbol]
-        print('Return history for symbol %s has %i records' % (symbol, len(history)))
+        print('Return history for symbol %s has %i records' %
+              (symbol, len(history)))
         mean_returns[symbol] = np.mean(history)
         variances[symbol] = np.var(history)
         standard_deviations[symbol] = np.sqrt(variances[symbol])
@@ -49,11 +50,13 @@ def show_frontier(symbols, interval='MONTHLY'):
 
     for i in range(0, 1_000):
         randoms = np.random.random_sample((len(symbols),))
-        weights = [ random / sum(randoms) for random in randoms ]
+        weights = [random / sum(randoms) for random in randoms]
 
-        expected_return = sum([ weights[i] * mean_returns[symbol] for i, symbol in enumerate(symbols) ])
+        expected_return = sum([weights[i] * mean_returns[symbol]
+                               for i, symbol in enumerate(symbols)])
 
-        weights_times_deviations = [ weights[i]**2 * standard_deviations[symbol]**2 for i, symbol in enumerate(symbols) ]
+        weights_times_deviations = [
+            weights[i]**2 * standard_deviations[symbol]**2 for i, symbol in enumerate(symbols)]
         variance = sum(weights_times_deviations)
 
         for i in range(0, len(symbols)):
@@ -71,7 +74,8 @@ def show_frontier(symbols, interval='MONTHLY'):
                     deviation2 = standard_deviations[symbol2]
                     #print('Deviations = %s %s' % (deviation1, deviation2))
 
-                    correlation = np.corrcoef(returns_history[symbol1], returns_history[symbol2])[0][1]
+                    correlation = np.corrcoef(
+                        returns_history[symbol1], returns_history[symbol2])[0][1]
                     #print('Correlation = %f' % correlation)
 
                     additional_variance = weight1 * weight2 * deviation1 * deviation2 * correlation
@@ -89,19 +93,26 @@ def show_frontier(symbols, interval='MONTHLY'):
         portfolio_deviations.append(standard_deviation)
 
     x_padding = np.average(portfolio_deviations) / 25
-    plt.xlim(min(portfolio_deviations) - x_padding, max(portfolio_deviations) + x_padding)
+    plt.xlim(min(portfolio_deviations) - x_padding,
+             max(portfolio_deviations) + x_padding)
 
     y_padding = np.average(portfolio_returns) / 25
-    plt.ylim(min(portfolio_returns) - y_padding, max(portfolio_returns) + y_padding)
+    plt.ylim(min(portfolio_returns) - y_padding,
+             max(portfolio_returns) + y_padding)
 
-    plt.gca().set_xticklabels(['{:.2f}%'.format(x*100) for x in plt.gca().get_xticks()])
-    plt.gca().set_yticklabels(['{:.2f}%'.format(y*100) for y in plt.gca().get_yticks()])
+    plt.gca().set_xticklabels(['{:.2f}%'.format(x*100)
+                               for x in plt.gca().get_xticks()])
+    plt.gca().set_yticklabels(['{:.2f}%'.format(y*100)
+                               for y in plt.gca().get_yticks()])
 
     plt.title('Efficient Frontier %s' % symbols)
 
     plt.xlabel('Risk')
     plt.ylabel('Return')
 
-    plt.show()
+    pathlib.Path('img/frontier').mkdir(parents=True, exist_ok=True)
+    plt.savefig(f'img/frontier/frontier.png')
+    plt.close()
+
 
 show_frontier(sys.argv[1:])

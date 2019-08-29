@@ -10,6 +10,7 @@ import plot_style
 def compare(stock_symbol, benchmark_symbol, interval='MONTHLY'):
     stock_data = alpha_vantage.get_stock_price_history(
         stock_symbol, interval, adjusted=True)
+
     benchmark_data = alpha_vantage.get_stock_price_history(
         benchmark_symbol, interval, adjusted=True)
 
@@ -24,12 +25,13 @@ def compare(stock_symbol, benchmark_symbol, interval='MONTHLY'):
 
     plot_style.line()
 
-    plt.plot(benchmark_data.keys(), benchmark_data.values(),
+    plt.plot(list(benchmark_data.keys()), list(benchmark_data.values()),
              label=benchmark_symbol, color='xkcd:grey', antialiased=True, linewidth=2.5)
-    plt.plot(stock_data.keys(), stock_data.values(),
+
+    plt.plot(list(stock_data.keys()), list(stock_data.values()),
              label=stock_symbol, color='xkcd:azure', antialiased=True, linewidth=2.5)
 
-    plt.title(f'{stock_symbol} vs {benchmark_symbol} (adjusted)')
+    plt.title(f'{stock_symbol} vs {benchmark_symbol} (adjusted)', pad=24)
     plt.legend()
 
     pathlib.Path('img/compare').mkdir(parents=True, exist_ok=True)
