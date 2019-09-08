@@ -24,6 +24,8 @@ echo ALPHA_VANTAGE_KEY=**YOUR_API_KEY** > .env
 python history.py SPX
 ```
 
+![History](/example-images/history.png)
+
 ## Plotting Variance
 
 ```bash
