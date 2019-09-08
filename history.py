@@ -14,9 +14,8 @@ def show_history(symbol, interval='MONTHLY'):
     )
 
     plot_style.line()
-
-    plt.title(f'{symbol} price history', pad=24)
-    plt.plot(list(data.keys()), list(data.values()), antialiased=True, linewidth=3)
+    plt.title(f'{symbol} price history')
+    plt.plot(list(data.keys()), list(data.values()))
 
     pathlib.Path('img/history').mkdir(parents=True, exist_ok=True)
     plt.savefig(f'img/history/{symbol}.png')

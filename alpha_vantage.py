@@ -96,4 +96,4 @@ def get_crypto_price_history(currency, interval):
 
 
 def url_for_function(function):
-    return 'https://www.alphavantage.co/query?function=%s' % function
+    return f'https://www.alphavantage.co/query?function={function}'
