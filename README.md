@@ -32,6 +32,8 @@ python history.py SPX
 python variance.py TSLA
 ```
 
+![Variance](/example-images/variance.png)
+
 ## Comparing Returns
 
 ```bash

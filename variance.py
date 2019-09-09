@@ -17,18 +17,26 @@ def show_variance(symbol, interval='MONTHLY'):
 
     plot_style.hist()
 
-    plt.gca().yaxis.set_major_formatter(
-        matplotlib.ticker.StrMethodFormatter('{x:.0f}%'))
+    n, bins, patches = plt.hist(returns, density=True, bins=25)
 
-    plt.hist(returns, bins=25, edgecolor='white', linewidth=1)
+    for item in patches:
+        item.set_height(item.get_height() / sum(n))
+
+    max_y = max(n) / sum(n)
+    plt.ylim(0, max_y + max_y / 10)
+
+    plt.gca().set_xticklabels(['{:.0f}%'.format(x*100)
+                               for x in plt.gca().get_xticks()])
+
+    plt.gca().set_yticklabels(['{:.0f}%'.format(y*100)
+                               for y in plt.gca().get_yticks()])
 
     title_line_1 = f'{symbol} {interval} return distribution'
     title_line_2 = 'Standard deviation = %.2f%% Mean return = %.2f%%' % (
         standard_deviation * 100, mean_return * 100)
-
-    plt.title(f'{title_line_1}\n{title_line_2}', pad=20)
-    plt.xlabel('Return', labelpad=13)
-    plt.ylabel('Frequency', labelpad=13)
+    plt.title(f'{title_line_1}\n{title_line_2}')
+    plt.xlabel('Return')
+    plt.ylabel('Probability')
 
     pathlib.Path('img/variance').mkdir(parents=True, exist_ok=True)
     plt.savefig(f'img/variance/{symbol}.png')
