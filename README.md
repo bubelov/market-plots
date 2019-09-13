@@ -40,6 +40,8 @@ python variance.py TSLA
 python compare.py TSLA SPX
 ```
 
+![Comparing returns](/example-images/compare.png)
+
 ## Efficient Frontier (2 Assets)
 
 ```bash
