@@ -1,12 +1,14 @@
-import alpha_vantage
 import matplotlib.pyplot as plt
 import sys
 import pathlib
 import numpy as np
 
+import alpha_vantage
+import plot_style
+
 
 def show_frontier(symbols, interval='MONTHLY'):
-    print('Symbols: %s' % symbols)
+    #print(f'Symbols: {symbols}')
 
     returns_history = dict()
 
@@ -14,7 +16,7 @@ def show_frontier(symbols, interval='MONTHLY'):
 
     for symbol in symbols:
         history = alpha_vantage.get_stock_returns_history(symbol, interval)
-        print('Fetched %i records for symbol %s' % (len(history), symbol))
+        #print(f'Fetched {len(history)} records for symbol {symbol}')
 
         if min_length == None:
             min_length = len(history)
@@ -24,14 +26,14 @@ def show_frontier(symbols, interval='MONTHLY'):
 
         returns_history[symbol] = history
 
-    print('Min hisotry length = %i' % min_length)
+    #print(f'Min hisotry length = {min_length}')
 
     for symbol in symbols:
         returns_history[symbol] = returns_history[symbol][-min_length:]
 
-    for symbol in symbols:
-        print('History for symbol %s has %i records' %
-              (symbol, len(returns_history[symbol])))
+    #for symbol in symbols:
+    #    print(
+    #       f'History for symbol {symbol} has {len(returns_history[symbol])} records')
 
     mean_returns = dict()
     variances = dict()
@@ -39,11 +41,13 @@ def show_frontier(symbols, interval='MONTHLY'):
 
     for symbol in symbols:
         history = returns_history[symbol]
-        print('Return history for symbol %s has %i records' %
-              (symbol, len(history)))
+        history_length = len(history)
+        #print(f'Return history for symbol {symbol} has {history_length} records')
         mean_returns[symbol] = np.mean(history)
         variances[symbol] = np.var(history)
         standard_deviations[symbol] = np.sqrt(variances[symbol])
+
+    plot_style.scatter()
 
     portfolio_returns = []
     portfolio_deviations = []
@@ -87,7 +91,7 @@ def show_frontier(symbols, interval='MONTHLY'):
         #print('Portfolio expected return = %f' % expected_return)
         #print('Portfolio standard deviation = %f' % standard_deviation)
 
-        plt.scatter(standard_deviation, expected_return, color='blue')
+        plt.scatter(standard_deviation, expected_return, color='#007bff')
 
         portfolio_returns.append(expected_return)
         portfolio_deviations.append(standard_deviation)
@@ -105,7 +109,7 @@ def show_frontier(symbols, interval='MONTHLY'):
     plt.gca().set_yticklabels(['{:.2f}%'.format(y*100)
                                for y in plt.gca().get_yticks()])
 
-    plt.title('Efficient Frontier %s' % symbols)
+    plt.title(f'Efficient Frontier {symbols}')
 
     plt.xlabel('Risk')
     plt.ylabel('Return')

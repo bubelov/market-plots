@@ -40,7 +40,7 @@ python variance.py TSLA
 python compare.py TSLA SPX
 ```
 
-![Comparing returns](/example-images/compare.png)
+![Comparing Returns](/example-images/compare.png)
 
 ## Efficient Frontier (2 Assets)
 
@@ -48,8 +48,11 @@ python compare.py TSLA SPX
 python frontier2.py IBM DIS
 ```
 
+![Efficient Frontier (IBM, DIS)](/example-images/frontier2.png)
+
 ## Efficient Frontier (N Assets)
 
 ```bash
 python frontier.py IBM DIS KO
 ```
+![Efficient Frontier (IBM, DIS, KO)](/example-images/frontier.png)

@@ -40,3 +40,7 @@ def line():
 def hist():
     style.use('default')
     apply_common_styles()
+
+def scatter():
+    style.use('bmh')
+    apply_common_styles()
