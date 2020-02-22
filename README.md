@@ -15,7 +15,7 @@ cd market-plots
 python3 -m venv venv
 . venv/bin/activate
 pip install -r requirements.txt
-echo ALPHA_VANTAGE_KEY=**YOUR_API_KEY** > .env
+echo ALPHA_VANTAGE_KEY=YOUR_API_KEY > .env
 ```
 
 ## Plotting History
