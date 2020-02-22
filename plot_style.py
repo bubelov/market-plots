@@ -1,4 +1,5 @@
 import matplotlib.pyplot as plt
+import matplotlib.ticker as tkr
 import matplotlib.style as style
 
 
@@ -14,7 +15,7 @@ def apply_common_styles():
     plt.rcParams['axes.facecolor'] = '#222222'
     plt.rcParams['axes.labelcolor'] = '#ffffff'
 
-    plt.rcParams['savefig.facecolor'] = '#222222'
+    plt.rcParams['savefig.facecolor'] = '#111111'
 
     plt.rcParams['xtick.color'] = '#ffffff'
     plt.rcParams['xtick.major.pad'] = 12
@@ -28,8 +29,17 @@ def apply_common_styles():
 
     plt.rcParams['patch.force_edgecolor'] = True
 
+    plt.rcParams['axes.spines.left'] = False
+    plt.rcParams['axes.spines.right'] = False
+    plt.rcParams['axes.spines.top'] = False
+    plt.rcParams['axes.spines.bottom'] = False
+
+    # gca means "get current axes"
     ax = plt.gca()
-    ax.set_facecolor('#ffffff')
+    ax.set_facecolor('#111111')
+    ax.tick_params(axis=u'both', which=u'both', length=0)
+    ax.yaxis.set_major_formatter(
+        tkr.FuncFormatter(lambda x, p: format(int(x), ',')))
 
 
 def line():
@@ -40,6 +50,7 @@ def line():
 def hist():
     style.use('default')
     apply_common_styles()
+
 
 def scatter():
     style.use('bmh')

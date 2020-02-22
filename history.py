@@ -6,7 +6,7 @@ import alpha_vantage
 import plot_style
 
 
-def show_history(symbol, interval='MONTHLY'):
+def show_history(symbol: str, interval='MONTHLY'):
     data = alpha_vantage.get_stock_price_history(
         symbol,
         interval,
@@ -14,11 +14,11 @@ def show_history(symbol, interval='MONTHLY'):
     )
 
     plot_style.line()
-    plt.title(f'{symbol} price history')
+    plt.title(f'{symbol.upper()} Price History')
     plt.plot(list(data.keys()), list(data.values()))
 
     pathlib.Path('img/history').mkdir(parents=True, exist_ok=True)
-    plt.savefig(f'img/history/{symbol}.png')
+    plt.savefig(f'img/history/{symbol.lower()}.png')
     plt.close()
 
 
