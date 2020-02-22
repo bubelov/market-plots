@@ -21,7 +21,17 @@ echo ALPHA_VANTAGE_KEY=**YOUR_API_KEY** > .env
 ## Plotting History
 
 ```bash
-python history.py SPX
+python history.py spx
+```
+
+```bash
+tree img/
+
+img/
+└── [4.0K]  history
+    └── [102K]  spx.png
+
+display -update 1 img/history/spx.png
 ```
 
 ![History](/example-images/history.png)
