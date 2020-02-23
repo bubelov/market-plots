@@ -6,10 +6,11 @@ import pathlib
 import matplotlib.style as style
 
 import alpha_vantage
+from alpha_vantage import Interval
 import plot_style
 
 
-def show_variance(symbol, interval='MONTHLY'):
+def show_variance(symbol, interval=Interval.MONTHLY):
     returns = alpha_vantage.get_stock_returns_history(symbol, interval)
     variance = np.var(returns)
     standard_deviation = np.sqrt(variance)
@@ -17,7 +18,7 @@ def show_variance(symbol, interval='MONTHLY'):
 
     plot_style.hist()
 
-    n, bins, patches = plt.hist(returns, density=True, bins=25)
+    n, _, patches = plt.hist(returns, density=True, bins=25)
 
     for item in patches:
         item.set_height(item.get_height() / sum(n))
@@ -31,11 +32,11 @@ def show_variance(symbol, interval='MONTHLY'):
     plt.gca().set_yticklabels(['{:.0f}%'.format(y*100)
                                for y in plt.gca().get_yticks()])
 
-    title_line_1 = f'{symbol} {interval} return distribution'
-    title_line_2 = 'Standard deviation = %.2f%% Mean return = %.2f%%' % (
+    title_line_1 = f'{symbol.upper()} {interval.value.lower().capitalize()} Return Distribution'
+    title_line_2 = 'Standard Deviation = %.2f%% Mean Return = %.2f%%' % (
         standard_deviation * 100, mean_return * 100)
     plt.title(f'{title_line_1}\n{title_line_2}')
-    plt.xlabel('Return')
+    plt.xlabel(f'{interval.value.lower().capitalize()} Return')
     plt.ylabel('Probability')
 
     pathlib.Path('img/variance').mkdir(parents=True, exist_ok=True)

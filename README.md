@@ -39,7 +39,7 @@ display -update 1 img/history/spx.png
 ## Plotting Variance
 
 ```bash
-python variance.py TSLA
+python variance.py tsla
 ```
 
 ![Variance](/example-images/variance.png)

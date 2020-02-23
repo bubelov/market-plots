@@ -3,19 +3,22 @@ import pathlib
 import matplotlib.pyplot as plt
 
 import alpha_vantage
+from alpha_vantage import Interval
 import plot_style
 
 
-def show_history(symbol: str, interval='MONTHLY'):
+def show_history(symbol: str):
     data = alpha_vantage.get_stock_price_history(
         symbol,
-        interval,
+        Interval.MONTHLY,
         adjusted=False
     )
 
     plot_style.line()
     plt.title(f'{symbol.upper()} Price History')
-    plt.plot(list(data.keys()), list(data.values()))
+    plt.plot(
+        list(i.date for i in data),
+        list(i.price for i in data))
 
     pathlib.Path('img/history').mkdir(parents=True, exist_ok=True)
     plt.savefig(f'img/history/{symbol.lower()}.png')

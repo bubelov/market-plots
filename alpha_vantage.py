@@ -1,10 +1,12 @@
+from dotenv import load_dotenv
+from os.path import join, dirname
+from dateutil import parser
+from enum import Enum
+from typing import List
 import os
 import urllib.request as url_request
 import json
-from dateutil import parser
-from os.path import join, dirname
-from dotenv import load_dotenv
-
+from dataclasses import dataclass
 import ssl
 ssl._create_default_https_context = ssl._create_unverified_context
 
@@ -15,23 +17,38 @@ API_KEY = os.getenv('ALPHA_VANTAGE_KEY')
 REQUEST_TIMEOUT_SECONDS = 20
 
 
-def get_stock_returns_history(symbol, interval):
+class Interval(Enum):
+    DAILY = 'DAILY'
+    WEEKLY = 'WEEKLY'
+    MONTHLY = 'MONTHLY'
+
+
+@dataclass
+class AssetPrice:
+    date: str
+    price: float
+
+
+def get_stock_returns_history(symbol: str,
+                              interval: Interval) -> [float]:
     price_history = get_stock_price_history(symbol, interval, adjusted=True)
 
-    returns = []
+    returns: [float] = []
     prev_price = None
 
-    for price in price_history.values():
+    for item in price_history:
         if prev_price != None:
-            returns.append((price - prev_price) / prev_price)
+            returns.append((item.price - prev_price) / prev_price)
 
-        prev_price = price
+        prev_price = item.price
 
     return returns
 
 
-def get_stock_price_history(symbol, interval, adjusted=False):
-    url = url_for_function('TIME_SERIES_%s' % interval)
+def get_stock_price_history(symbol: str,
+                            interval: Interval,
+                            adjusted=False) -> List[AssetPrice]:
+    url = url_for_function('TIME_SERIES_%s' % interval.value)
 
     if adjusted == True:
         url += '_ADJUSTED'
@@ -42,25 +59,21 @@ def get_stock_price_history(symbol, interval, adjusted=False):
 
     response = url_request.urlopen(url, timeout=REQUEST_TIMEOUT_SECONDS)
     data = json.load(response)
-    meta_key, dates_key = data.keys()
-    dates_data = data[dates_key]
+    prices_json = data[list(data.keys())[1]]
 
-    return {
-        parser.parse(k): float(v[get_stock_price_field_name(adjusted)])
-        for k, v
-        in sorted(dates_data.items())
-    }
+    field_name = '4. close' if adjusted == False else '5. adjusted close'
 
+    prices: List[AssetPrice] = []
 
-def get_stock_price_field_name(adjusted):
-    if adjusted == True:
-        return '5. adjusted close'
-    else:
-        return '4. close'
+    for k, v in sorted(prices_json.items()):
+        prices.append(AssetPrice(date=parser.parse(k),
+                                 price=float(v[field_name])))
+
+    return prices
 
 
-def get_crypto_returns_history(currency, interval):
-    dates, prices = get_crypto_price_history(currency, interval)
+def get_crypto_returns_history(currency: str, interval: Interval):
+    _, prices = get_crypto_price_history(currency, interval)
 
     returns = []
     prev_price = None
@@ -74,15 +87,15 @@ def get_crypto_returns_history(currency, interval):
     return returns
 
 
-def get_crypto_price_history(currency, interval):
-    url = url_for_function('DIGITAL_CURRENCY_%s' % interval)
+def get_crypto_price_history(currency: str, interval: Interval):
+    url = url_for_function('DIGITAL_CURRENCY_%s' % interval.value)
     url += '&apikey=%s' % API_KEY
     url += '&symbol=%s' % currency
     url += '&market=%s' % 'USD'
 
     response = url_request.urlopen(url, timeout=REQUEST_TIMEOUT_SECONDS)
     data = json.load(response)
-    meta_key, dates_key = data.keys()
+    _, dates_key = data.keys()
     dates_data = data[dates_key]
 
     dates = []
@@ -95,5 +108,5 @@ def get_crypto_price_history(currency, interval):
     return (dates, prices)
 
 
-def url_for_function(function):
+def url_for_function(function: str):
     return f'https://www.alphavantage.co/query?function={function}'
