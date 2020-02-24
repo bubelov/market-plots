@@ -1,51 +1,62 @@
 import sys
 import pathlib
-import numpy as np
 import matplotlib.pyplot as plt
+from typing import List
 
 import alpha_vantage
+from alpha_vantage import Interval, AssetPrice
 import plot_style
 
 
-def compare(stock_symbol, benchmark_symbol, interval='MONTHLY', adjusted=True):
-    stock_data = alpha_vantage.get_stock_price_history(
-        stock_symbol, interval, adjusted)
+def compare(symbol_1: str,
+            symbol_2: str,
+            interval=Interval.MONTHLY,
+            adjusted=True):
+    history_1 = alpha_vantage.get_stock_price_history(
+        symbol_1, interval, adjusted)
 
-    benchmark_data = alpha_vantage.get_stock_price_history(
-        benchmark_symbol, interval, adjusted)
+    history_2 = alpha_vantage.get_stock_price_history(
+        symbol_2, interval, adjusted)
 
-    stock_data = {k: v for (k, v) in stock_data.items()
-                  if k in benchmark_data.keys()}
+    history_1 = [v for v in history_1 if v.date in list(
+        i.date for i in history_2)]
 
-    benchmark_data = {
-        k: v for (k, v) in benchmark_data.items() if k in stock_data.keys()}
+    history_2 = [v for v in history_2 if v.date in list(
+        i.date for i in history_1)]
 
-    stock_data = adjust_values(stock_data)
-    benchmark_data = adjust_values(benchmark_data)
+    adjust_values(history_1, start=100.0)
+    adjust_values(history_2, start=100.0)
 
     plot_style.line()
 
-    plt.plot(list(benchmark_data.keys()), list(benchmark_data.values()), label=benchmark_symbol)
-    plt.plot(list(stock_data.keys()), list(stock_data.values()), label=stock_symbol)
+    plt.plot(
+        list(i.date for i in history_1),
+        list(i.price for i in history_1),
+        label=symbol_1.upper())
 
-    plt.title(f'{stock_symbol} vs {benchmark_symbol} (adjusted)')
+    plt.plot(
+        list(i.date for i in history_2),
+        list(i.price for i in history_2),
+        label=symbol_2.upper())
+
+    title = f'{symbol_1.upper()} vs {symbol_2.upper()}'
+    title = title + ' (adjusted)' if adjusted == True else title
+    plt.title(title)
     plt.legend()
 
     pathlib.Path('img/compare').mkdir(parents=True, exist_ok=True)
-    plt.savefig(f'img/compare/{stock_symbol}-{benchmark_symbol}.png')
+    plt.savefig(f'img/compare/{symbol_1.lower()}-{symbol_2.lower()}.png')
     plt.close()
 
 
-def adjust_values(data, start=100.0):
+def adjust_values(data: List[AssetPrice], start: float):
     scale_factor = None
 
-    for k, v in sorted(data.items()):
+    for v in data:
         if scale_factor == None:
-            scale_factor = v / start
+            scale_factor = v.price / start
 
-        data[k] = v / scale_factor
-
-    return data
+        v.price = v.price / scale_factor
 
 
 compare(sys.argv[1], sys.argv[2])

@@ -47,7 +47,7 @@ python variance.py tsla
 ## Comparing Returns
 
 ```bash
-python compare.py TSLA SPX
+python compare.py goog spx
 ```
 
 ![Comparing Returns](/example-images/compare.png)

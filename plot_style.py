@@ -40,6 +40,7 @@ def apply_common_styles():
     ax.tick_params(axis=u'both', which=u'both', length=0)
     ax.yaxis.set_major_formatter(
         tkr.FuncFormatter(lambda x, p: format(int(x), ',')))
+    #ax.grid(False)
 
 
 def line():
