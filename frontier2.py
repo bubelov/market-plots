@@ -5,10 +5,13 @@ import matplotlib
 import matplotlib.pyplot as plt
 
 import alpha_vantage
+from alpha_vantage import Interval
 import plot_style
 
 
-def show_frontier(symbol1, symbol2, interval='MONTHLY'):
+def show_frontier(symbol1: str,
+                  symbol2: str,
+                  interval=Interval.MONTHLY):
     returns1 = alpha_vantage.get_stock_returns_history(symbol1, interval)
     returns2 = alpha_vantage.get_stock_returns_history(symbol2, interval)
 
@@ -82,13 +85,13 @@ def show_frontier(symbol1, symbol2, interval='MONTHLY'):
     plt.gca().set_yticklabels(['{:.2f}%'.format(y*100)
                                for y in plt.gca().get_yticks()])
 
-    plt.title(f'Efficient Frontier ({symbol1} and {symbol2})')
+    plt.title(f'Efficient Frontier ({symbol1.upper()} and {symbol2.upper()})')
 
-    plt.xlabel('Risk')
-    plt.ylabel('Return')
+    plt.xlabel(f'Risk ({interval.value.lower().capitalize()})')
+    plt.ylabel(f'Return ({interval.value.lower().capitalize()})')
 
     pathlib.Path('img/frontier2').mkdir(parents=True, exist_ok=True)
-    plt.savefig(f'img/frontier2/{symbol1}-{symbol2}.png')
+    plt.savefig(f'img/frontier2/{symbol1.lower()}-{symbol2.lower()}.png')
     plt.close()
 
 

@@ -4,10 +4,11 @@ import pathlib
 import numpy as np
 
 import alpha_vantage
+from alpha_vantage import Interval
 import plot_style
 
 
-def show_frontier(symbols, interval='MONTHLY'):
+def show_frontier(symbols, interval=Interval.MONTHLY):
     #print(f'Symbols: {symbols}')
 
     returns_history = dict()
@@ -31,7 +32,7 @@ def show_frontier(symbols, interval='MONTHLY'):
     for symbol in symbols:
         returns_history[symbol] = returns_history[symbol][-min_length:]
 
-    #for symbol in symbols:
+    # for symbol in symbols:
     #    print(
     #       f'History for symbol {symbol} has {len(returns_history[symbol])} records')
 
@@ -60,7 +61,7 @@ def show_frontier(symbols, interval='MONTHLY'):
                                for i, symbol in enumerate(symbols)])
 
         weights_times_deviations = [
-            weights[i]**2 * standard_deviations[symbol]**2 for i, symbol in enumerate(symbols)]
+            weights[i]**2 * standard_deviations[s]**2 for i, s in enumerate(symbols)]
         variance = sum(weights_times_deviations)
 
         for i in range(0, len(symbols)):
@@ -82,7 +83,9 @@ def show_frontier(symbols, interval='MONTHLY'):
                         returns_history[symbol1], returns_history[symbol2])[0][1]
                     #print('Correlation = %f' % correlation)
 
-                    additional_variance = weight1 * weight2 * deviation1 * deviation2 * correlation
+                    additional_variance = weight1 * weight2  \
+                        * deviation1 * deviation2 \
+                        * correlation
                     #print('Additional variance = %f' % additional_variance)
 
                     variance += additional_variance
@@ -109,10 +112,10 @@ def show_frontier(symbols, interval='MONTHLY'):
     plt.gca().set_yticklabels(['{:.2f}%'.format(y*100)
                                for y in plt.gca().get_yticks()])
 
-    plt.title(f'Efficient Frontier {symbols}')
+    plt.title(f'Efficient Frontier {list(s.upper() for s in symbols)}')
 
-    plt.xlabel('Risk')
-    plt.ylabel('Return')
+    plt.xlabel(f'Risk ({interval.value.lower().capitalize()})')
+    plt.ylabel(f'Return ({interval.value.lower().capitalize()})')
 
     pathlib.Path('img/frontier').mkdir(parents=True, exist_ok=True)
     plt.savefig(f'img/frontier/frontier.png')
